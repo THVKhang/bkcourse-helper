@@ -8,3 +8,7 @@ backend/venv/
 *.db
 check_db.py
 fix_db.py
+
+# Build/test artifacts
+*.tsbuildinfo
+.pytest_cache/

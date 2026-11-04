@@ -13,7 +13,7 @@ def db_dep() -> Session:
 
 security = HTTPBearer(auto_error=False)
 
-JWT_SECRET = settings.SUPABASE_JWT_SECRET or "fallback-secret-key-change-me"
+JWT_SECRET = settings.jwt_secret()
 JWT_ALGORITHM = "HS256"
 
 def get_current_user_id(credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)) -> Optional[str]:

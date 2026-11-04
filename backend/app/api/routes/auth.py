@@ -17,7 +17,7 @@ from app.services.student_service import get_or_create_student
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-JWT_SECRET = settings.SUPABASE_JWT_SECRET or "fallback-secret-key-change-me"
+JWT_SECRET = settings.jwt_secret()
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRE_HOURS = 72
 
