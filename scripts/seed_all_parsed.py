@@ -2,8 +2,8 @@ import os, sys, glob
 import pandas as pd
 from dotenv import load_dotenv
 
-sys.path.append(os.path.join(os.path.dirname(__file__), 'backend'))
-load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'backend'))
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'backend', '.env'))
 
 from sqlalchemy.orm import Session
 from sqlalchemy import func

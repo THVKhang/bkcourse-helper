@@ -42,7 +42,8 @@ bkcourse-helperTHVK/
 │   ├── app/models/    # SQLAlchemy models
 │   ├── app/services/  # Business logic
 │   └── app/parsers/   # HCMUT portal data parser
-├── seed_cs2024.py     # Script seed dữ liệu chương trình CS 2024
+├── scripts/           # Seed & crawl scripts (seed_cs2024.py, seed_prerequisites.py...)
+├── sql/               # SQL schema & queries tham khảo
 ├── package.json       # Root config (Vercel experimentalServices)
 └── vercel.json        # Vercel deployment config
 ```
@@ -79,13 +80,21 @@ DB_URL=sqlite:///./bkcourse.db                          # SQLite (local)
 
 CORS_ORIGINS=http://localhost:3000
 DEBUG=1
+
+# Bắt buộc khi deploy production (>= 32 ký tự)
+JWT_SECRET=<chuỗi-bí-mật-ngẫu-nhiên>
+# Tuỳ chọn: gửi email đặt lại mật khẩu qua Resend
+RESEND_API_KEY=
 ```
+
+> Có thể copy nhanh từ `backend/.env.example`. Nếu không có `.env`, backend mặc định dùng SQLite `bkcourse.db`.
 
 ### 4. Khởi tạo Database & Seed dữ liệu
 ```bash
 # Từ thư mục backend/
-python -c "from app.main import app"   # Tạo tables
-python ../seed_cs2024.py               # Seed chương trình CS 2024
+python -c "from app.main import app"      # Tạo tables
+python ../scripts/seed_cs2024.py          # Seed chương trình CS 2024
+python ../scripts/seed_prerequisites.py   # Seed môn tiên quyết
 ```
 
 ### 5. Cài đặt Frontend
@@ -109,6 +118,22 @@ npm run dev
 
 Truy cập: **http://localhost:3000**
 
+Hoặc chạy cả 2 bằng một lệnh: `npm run dev` (Windows, dùng `dev.ps1`) hoặc `./dev.sh` (macOS/Linux).
+
+### 7. Chạy test
+```bash
+cd backend
+pip install -r requirements-dev.txt
+python -m pytest -q
+```
+
+```bash
+cd frontend
+npx tsc --noEmit && npm run build
+```
+
+CI (GitHub Actions — `.github/workflows/ci.yml`) tự động chạy test backend và build frontend cho mỗi push/PR.
+
 ---
 
 ## ☁️ Deploy lên Vercel
@@ -118,6 +143,7 @@ Project đã được cấu hình sẵn cho Vercel monorepo deployment:
 1. Push code lên GitHub
 2. Import repo trên [vercel.com](https://vercel.com)
 3. Thêm Environment Variable: `DB_URL` = `sqlite:///./bkcourse.db`
+   và `JWT_SECRET` = chuỗi bí mật ngẫu nhiên (dùng để ký token đăng nhập)
 4. Deploy!
 
 > **Lưu ý:** SQLite trên Vercel chạy ở chế độ read-only (serverless). Trang **Chương trình học** vẫn hoạt động bình thường vì lưu state ở `localStorage`. Để lưu dữ liệu phía server trên production, cần chuyển sang database cloud (Supabase/Neon PostgreSQL).
@@ -146,6 +172,9 @@ Project đã được cấu hình sẵn cho Vercel monorepo deployment:
 | `POST` | `/schedule/generate` | Tạo các phương án xếp lịch |
 | `GET` | `/students/{code}/history` | Lịch sử học tập sinh viên |
 | `POST` | `/recommendations` | Gợi ý môn học HK tới |
+| `POST` | `/auth/register`, `/auth/login`, `/auth/guest` | Đăng ký / đăng nhập / khách |
+| `GET` | `/auth/me` | Thông tin người dùng hiện tại |
+| `POST` | `/share` · `GET` `/share/{id}` | Chia sẻ thời khoá biểu |
 | `GET` | `/health` | Health check |
 
 ---
